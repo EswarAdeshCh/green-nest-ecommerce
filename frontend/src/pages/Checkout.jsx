@@ -13,7 +13,6 @@ const Checkout = () => {
   const [cartProducts, setCartProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -62,7 +61,7 @@ const Checkout = () => {
     }
 
     loadCheckoutData()
-  }, [cart, navigate])
+  }, [cart, navigate, API_BASE_URL])
 
   const handleChange = (e) => {
     setFormData({
@@ -76,29 +75,26 @@ const Checkout = () => {
   }
 
   const calculateTotal = () => {
-    return calculateSubtotal() + 99.99 // Flat shipping cost
+    return calculateSubtotal() + 99.99 // Fixed shipping cost
   }
 
-  // ✅ UPDATED handleSubmit with flattened orderData
+  // ✅ FIXED: Submit only required fields to match backend validation
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSubmitting(true)
 
-    // ✅ Flatten formData for backend compatibility
-    const { firstName, lastName, email, phone, address, city, state, zipCode } = formData
-    const fullName = `${firstName} ${lastName}`
-    const fullAddress = `${address}, ${city}, ${state} - ${zipCode}`
+    // ✅ Construct the items array with only required fields
+    const items = cart.map((item) => ({
+      productId: item.productId,
+      quantity: item.quantity,
+    }))
 
     const orderData = {
-      name: fullName,
-      email,
-      phone,
-      address: fullAddress,
-      items: cart,
-      total: calculateTotal(), // Optional: add total if backend expects it
+      items,
+      shippingInfo: formData,
     }
 
-    console.log("Order data being sent:", orderData) // ✅ Debug log
+    console.log("🚀 Submitting orderData:", orderData) // Debug
 
     try {
       const response = await axios.post(`${API_BASE_URL}/orders`, orderData, {
@@ -116,7 +112,6 @@ const Checkout = () => {
       }
     } catch (error) {
       console.error("Checkout error:", error)
-      console.error("Backend says:", error.response?.data?.message)
       alert("Failed to place order. Please try again.")
     } finally {
       setSubmitting(false)
@@ -140,25 +135,11 @@ const Checkout = () => {
                 <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="firstName">First Name</label>
-                    <input
-                      type="text"
-                      id="firstName"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      required
-                    />
+                    <input type="text" id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} required />
                   </div>
                   <div className="form-group">
                     <label htmlFor="lastName">Last Name</label>
-                    <input
-                      type="text"
-                      id="lastName"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      required
-                    />
+                    <input type="text" id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required />
                   </div>
                 </div>
 
@@ -174,14 +155,7 @@ const Checkout = () => {
 
                 <div className="form-group">
                   <label htmlFor="address">Street Address</label>
-                  <input
-                    type="text"
-                    id="address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    required
-                  />
+                  <input type="text" id="address" name="address" value={formData.address} onChange={handleChange} required />
                 </div>
 
                 <div className="form-row">
@@ -191,25 +165,11 @@ const Checkout = () => {
                   </div>
                   <div className="form-group">
                     <label htmlFor="state">State</label>
-                    <input
-                      type="text"
-                      id="state"
-                      name="state"
-                      value={formData.state}
-                      onChange={handleChange}
-                      required
-                    />
+                    <input type="text" id="state" name="state" value={formData.state} onChange={handleChange} required />
                   </div>
                   <div className="form-group">
                     <label htmlFor="zipCode">ZIP Code</label>
-                    <input
-                      type="text"
-                      id="zipCode"
-                      name="zipCode"
-                      value={formData.zipCode}
-                      onChange={handleChange}
-                      required
-                    />
+                    <input type="text" id="zipCode" name="zipCode" value={formData.zipCode} onChange={handleChange} required />
                   </div>
                 </div>
 
@@ -227,9 +187,7 @@ const Checkout = () => {
                     <img src={product.image || "/placeholder.svg"} alt={product.name} />
                     <div className="checkout-item-info">
                       <h4>{product.name}</h4>
-                      <p>
-                        Qty: {product.quantity} × ₹{product.price.toFixed(2)}
-                      </p>
+                      <p>Qty: {product.quantity} × ₹{product.price.toFixed(2)}</p>
                     </div>
                     <div className="checkout-item-total">₹{(product.price * product.quantity).toFixed(2)}</div>
                   </div>
@@ -254,11 +212,7 @@ const Checkout = () => {
         </div>
       </section>
 
-      <OrderConfirmation
-        show={showConfirmation}
-        onClose={() => setShowConfirmation(false)}
-        orderDetails={orderDetails}
-      />
+      <OrderConfirmation show={showConfirmation} onClose={() => setShowConfirmation(false)} orderDetails={orderDetails} />
     </>
   )
 }
