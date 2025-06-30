@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [token, setToken] = useState(localStorage.getItem("token"))
   const [loading, setLoading] = useState(true)
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 
   useEffect(() => {
