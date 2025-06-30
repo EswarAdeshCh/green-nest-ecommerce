@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import axios from "axios"
-
 import { useAuth } from "../context/AuthContext"
 
 const Orders = () => {
@@ -11,7 +10,7 @@ const Orders = () => {
   const [error, setError] = useState("")
 
   const { token } = useAuth()
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
   useEffect(() => {
     const loadOrders = async () => {
@@ -111,23 +110,38 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
                   <h4>Items Ordered:</h4>
                   <div className="items-grid">
                     {order.items.map((item, index) => (
-                      <div key={index} className="order-item">
-                        <img
-                          src={item.product.image || "/placeholder.svg"}
-                          alt={item.product.name}
-                          className="item-image"
-                          onError={(e) => {
-                            e.target.src = "https://via.placeholder.com/60x60?text=Product"
-                          }}
-                        />
-                        <div className="item-details">
-                          <h5>{item.product.name}</h5>
-                          <p>
-                            Quantity: {item.quantity} × ₹{item.price.toFixed(2)}
-                          </p>
-                          <p className="item-total">₹{(item.quantity * item.price).toFixed(2)}</p>
+                      item.product ? ( // ✅ Added null check
+                        <div key={index} className="order-item">
+                          <img
+                            src={item.product.image || "/placeholder.svg"}
+                            alt={item.product.name}
+                            className="item-image"
+                            onError={(e) => {
+                              e.target.src = "https://via.placeholder.com/60x60?text=Product"
+                            }}
+                          />
+                          <div className="item-details">
+                            <h5>{item.product.name}</h5>
+                            <p>
+                              Quantity: {item.quantity} × ₹{item.price.toFixed(2)}
+                            </p>
+                            <p className="item-total">₹{(item.quantity * item.price).toFixed(2)}</p>
+                          </div>
                         </div>
-                      </div>
+                      ) : ( // ✅ Graceful fallback if product is missing
+                        <div key={index} className="order-item missing-product">
+                          <img
+                            src="/placeholder.svg"
+                            alt="Deleted Product"
+                            className="item-image"
+                          />
+                          <div className="item-details">
+                            <h5>Product no longer available</h5>
+                            <p>Quantity: {item.quantity}</p>
+                            <p className="item-total">₹{(item.quantity * item.price).toFixed(2)}</p>
+                          </div>
+                        </div>
+                      )
                     ))}
                   </div>
                 </div>
