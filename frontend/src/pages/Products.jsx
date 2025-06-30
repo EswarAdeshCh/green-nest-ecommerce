@@ -20,7 +20,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/products?limit=100`)
+        const response = await axios.get(`${API_BASE_URL}/api/products?limit=100`)
 
         if (response.data.success) {
           setAllProducts(response.data.products)
