@@ -15,7 +15,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
   useEffect(() => {
     const loadFeaturedProducts = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/products?limit=100`)
+        const response = await axios.get(`${API_BASE_URL}/api/products?limit=100`)
 
         if (response.data.success) {
           // Filter for featured products or show first 6
