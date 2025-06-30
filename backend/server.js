@@ -24,7 +24,7 @@ app.use(limiter);
 // CORS configuration
 app.use(
   cors({
-    origin:"https://green-nest-ecommerce.vercel.app/",
+    origin:"https://green-nest-ecommerce.vercel.app",
     credentials: true,
   })
 );
