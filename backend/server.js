@@ -43,12 +43,12 @@ mongoose
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/products", productRoutes);
-app.use("/api/orders", orderRoutes);
+app.use("/auth", authRoutes);
+app.use("/products", productRoutes);
+app.use("/orders", orderRoutes);
 
 // Health check endpoint
-app.get("/api/health", (req, res) => {
+app.get("/health", (req, res) => {
   res.json({ status: "OK", message: "GreenNest API is running" });
 });
 
