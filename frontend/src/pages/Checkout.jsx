@@ -7,13 +7,13 @@ import { useCart } from "../context/CartContext"
 import { useAuth } from "../context/AuthContext"
 import OrderConfirmation from "../components/OrderConfirmation"
 
-
 const Checkout = () => {
   const { cart, clearCart } = useCart()
   const { token } = useAuth()
   const [cartProducts, setCartProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -25,12 +25,11 @@ const Checkout = () => {
     zipCode: "",
   })
 
-  // Add state for order confirmation
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [orderDetails, setOrderDetails] = useState(null)
 
   const navigate = useNavigate()
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
 
   useEffect(() => {
     if (cart.length === 0) {
@@ -77,18 +76,29 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
   }
 
   const calculateTotal = () => {
-    return calculateSubtotal() + 99.99 // Shipping cost
+    return calculateSubtotal() + 99.99 // Flat shipping cost
   }
 
-  // Update the handleSubmit function
+  // ✅ UPDATED handleSubmit with flattened orderData
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSubmitting(true)
 
+    // ✅ Flatten formData for backend compatibility
+    const { firstName, lastName, email, phone, address, city, state, zipCode } = formData
+    const fullName = `${firstName} ${lastName}`
+    const fullAddress = `${address}, ${city}, ${state} - ${zipCode}`
+
     const orderData = {
+      name: fullName,
+      email,
+      phone,
+      address: fullAddress,
       items: cart,
-      shippingInfo: formData,
+      total: calculateTotal(), // Optional: add total if backend expects it
     }
+
+    console.log("Order data being sent:", orderData) // ✅ Debug log
 
     try {
       const response = await axios.post(`${API_BASE_URL}/orders`, orderData, {
@@ -106,6 +116,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
       }
     } catch (error) {
       console.error("Checkout error:", error)
+      console.error("Backend says:", error.response?.data?.message)
       alert("Failed to place order. Please try again.")
     } finally {
       setSubmitting(false)
